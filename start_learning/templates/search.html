@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Поиск по отзывам</title>
+</head>
+<body>
+    <h1>Поиск по отзывам</h1>
+    <form method="post">
+        <input type="text" name="query" placeholder="Введите слово" value="{{ query }}">
+        <button type="submit">Искать</button>
+    </form>
+    {% if results %}
+        <h2>Результаты:</h2>
+        <ul>
+        {% for msg in results %}
+            <li>{{ msg }}</li>
+        {% endfor %}
+        </ul>
+    {% elif query %}
+        <p>Ничего не найдено.</p>
+    {% endif %}
+</body>
+</html>
