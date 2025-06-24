@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Форма JSON</title>
+</head>
+<body>
+  <h1>Форма обратной связи (JSON)</h1>
+
+  <form id="feedbackForm">
+    <input type="text" id="messageInput" placeholder="Ваше сообщение" required>
+    <button type="submit">Отправить</button>
+  </form>
+
+  <script>
+    document.getElementById("feedbackForm").addEventListener("submit", function(event) {
+      event.preventDefault(); // Остановить обычную отправку формы
+
+      const message = document.getElementById("messageInput").value;
+
+      fetch("/api/form", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ message: message })
+      })
+      .then(response => response.text())
+      .then(data => {
+        alert("Сервер ответил: " + data);
+      })
+      .catch(error => {
+        alert("Ошибка при отправке: " + error);
+      });
+    });
+  </script>
+</body>
+</html>
