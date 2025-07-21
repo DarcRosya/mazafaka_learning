@@ -1,0 +1,13 @@
+# Web-сервер	FastAPI + Uvicorn +
+# ORM	SQLAlchemy +
+# БД	PostgreSQL --- psycopg2 + 
+# Миграции	Alembic + 
+# Валидация	Pydantic - already
+# Аутентификация	JWT (PyJWT) +
+# Пароли	Passlib -+ , bcrypt + 4.0.1
+
+# python-jose[cryptography] ???
+
+
+# python-multiform
+# fastapi-jwt-auth / 
