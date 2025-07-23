@@ -8,6 +8,7 @@ import enum
 
 if TYPE_CHECKING:
     from .user import User  # импорт только для аннотаций, чтобы избежать циклов
+    from .tag import Tag
 
 class TaskStatus(enum.Enum):
     PENDING = "pending"
@@ -40,3 +41,7 @@ class Task(Base):
         back_populates="tasks",
     )
     
+    tags: Mapped[list["Tag"]] = relationship(
+        back_populates="tasks",
+        secondary="task_tags"
+    )
