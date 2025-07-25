@@ -4,8 +4,7 @@ from datetime import datetime
 from models.task import TaskPriority, TaskStatus
 
 if TYPE_CHECKING:
-    from src.schemas.user_dto import UserRead
-
+    from src.schemas.tag_dto import TagRead
 
 
 # user_id убрал потому что пользователь не должен передавать свой id при создании задачи
@@ -26,8 +25,22 @@ class TaskBase(BaseModel):
             return v.replace(tzinfo=None)
         return v
 
-class TaskUpdate(TaskBase):
-    pass
+
+class TaskUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    status: Optional[TaskStatus] = None
+    priority: Optional[TaskPriority] = None
+    deadline: Optional[datetime] = None
+    completed_at: Optional[datetime] = None
+
+    @field_validator("deadline", "completed_at", mode="before")
+    @classmethod
+    def remove_tzinfo(cls, v):
+        if isinstance(v, datetime) and v.tzinfo is not None:
+            return v.replace(tzinfo=None)
+        return v
+
 
 class TaskCreate(TaskBase):
     pass
@@ -38,6 +51,9 @@ class TaskRead(TaskBase):
     created_at: datetime
     updated_at: datetime
 
+    class Config:
+        orm_mode = True
 
-class TaskRelationship(TaskRead):
-    user: "UserRead"
+
+class TaskWithTagsRead(TaskRead):
+    tags: list["TagRead"]

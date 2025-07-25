@@ -10,7 +10,7 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from models import User, Task, Tag
+from models import User, Task, Tag #noqa
 from database import Base
 from config import settings
 

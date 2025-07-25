@@ -26,5 +26,5 @@ class UserRead(BaseModel):
     updated_at: datetime
 
 
-class UserRelationship(UserRead):
+class UserRelationshipTasks(UserRead):
     tasks: list["TaskRead"]

@@ -5,7 +5,7 @@ from queries.user_queries import update_user_query, delete_user_query
 from schemas.task_dto import TaskRead
 from utils.jwt_access import get_current_user
 from models.user import User
-from schemas.user_dto import UserRead, UserCreate, UserUpdate, UserRelationship
+from schemas.user_dto import UserRead, UserUpdate
 
 router = APIRouter(
     prefix="/users",      # это общий префикс
@@ -18,7 +18,9 @@ router = APIRouter(
     summary="Get current user info",
     response_description="Current user data"
 )
-async def get_user(current_user: User = Depends(get_current_user)):
+async def get_user(
+    current_user: User = Depends(get_current_user)
+):
     return UserRead.model_validate(current_user, from_attributes=True)
 
 
@@ -28,7 +30,9 @@ async def get_user(current_user: User = Depends(get_current_user)):
     summary="Get tasks of current user",
     response_description="List of tasks belonging to the current user"
 )
-async def get_user_tasks(current_user: User = Depends(get_current_user)):
+async def get_user_tasks(
+    current_user: User = Depends(get_current_user)
+):
     return current_user.tasks
 
 
@@ -45,23 +49,20 @@ async def update_user(
     current_user: User = Depends(get_current_user)
 ):
     updated_user = await update_user_query(db=db, user_id=current_user.id, user_update=user_update)
-    if updated_user is None:
-        raise HTTPException(status_code=404, detail="User not found")
     return UserRead.model_validate(updated_user, from_attributes=True)
 
 
 @router.delete(
     "/me",
-    status_code=status.HTTP_200_OK,
+    status_code=status.HTTP_204_NO_CONTENT,
     summary="Delete current user",
     response_description="User deleted successfully",
-    responses={
-        404: {"description": "User not found"},
-        200: {"description": "User deleted"}
+    responses={404: {"description": "Tag not found"},
+               204: {"description": "Task deleted successfully"}
     }
 )
-async def delete_user(current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_async_session)):
-    success = await delete_user_query(db=db, user_id=current_user.id)
-    if not success:
-        raise HTTPException(status_code=404, detail="User not found")
-    return {"detail": "User deleted"}
+async def delete_user(
+    current_user: User = Depends(get_current_user), 
+    db: AsyncSession = Depends(get_async_session)
+):
+    await delete_user_query(db=db, user_id=current_user.id)
