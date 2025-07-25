@@ -2,9 +2,10 @@ import logging
 from fastapi import HTTPException
 from sqlalchemy import select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
-from schemas.user_dto import UserCreate, UserUpdate
-from utils.password_hashing import hash_password
-from models.user import User
+
+from src.schemas.user_dto import UserCreate, UserUpdate
+from src.utils.password_hashing import hash_password
+from src.models.user import User
 
 
 async def create_user_query(db: AsyncSession, user_in: UserCreate) -> User:

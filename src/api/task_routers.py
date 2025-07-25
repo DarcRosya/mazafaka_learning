@@ -1,15 +1,15 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database import get_async_session
-from models.user import User
-from models.task import Task
-from schemas.task_dto import TaskCreate, TaskRead, TaskUpdate, TaskWithTagsRead
-from schemas.tag_dto import TagBase
-from utils.jwt_access import get_current_user
+from src.database import get_async_session
+from src.models.user import User
+from src.models.task import Task
+from src.schemas.task_dto import TaskCreate, TaskRead, TaskUpdate, TaskWithTagsRead
+from src.schemas.tag_dto import TagBase
+from src.utils.jwt_access import get_current_user
 from src.utils.task_servives import get_task_and_tag_or_404
 
-from queries.task_queries import (
+from src.queries.task_queries import (
     delete_task_query,
     select_tasks_by_user_id,
     create_task_query,
@@ -53,7 +53,7 @@ async def create_task(
 
 @router.get(
     "",
-    response_model=list[Task],
+    response_model=list[TaskRead],
     summary="Get all tasks of current user by tag",
     response_description="List of tasks"
 )

@@ -5,12 +5,12 @@ from jose import JWTError, jwt
 from fastapi import Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
-
-from models.user import User
-from database import get_async_session
-from utils.password_hashing import oauth2_scheme
 from sqlalchemy.ext.asyncio import AsyncSession
-from config import settings
+
+from src.models.user import User
+from src.database import get_async_session
+from src.utils.password_hashing import oauth2_scheme
+from src.config import settings
 
 
 def create_access_token(data: dict):

@@ -1,8 +1,9 @@
 from fastapi import HTTPException
 from sqlalchemy import and_, select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
-from models.task import Task
-from models.tag import Tag
+
+from src.models.task import Task
+from src.models.tag import Tag
 from src.schemas.tag_dto import TagCreate, TagUpdate
 
 

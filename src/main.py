@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from api import include_routers
+from src.api import include_routers
 #### TASK NET PROJECT #####
 app = FastAPI(title="FastApi - TaskNet")
 include_routers(app)
@@ -14,3 +14,5 @@ if __name__ == "__main__":
 
 
 # при нуле таксков нужно обработать получение в обоих категориях
+
+# УЗНАТЬ TASK_DTO

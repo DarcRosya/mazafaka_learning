@@ -1,6 +1,6 @@
 from typing import List, TYPE_CHECKING
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from database import Base, str_100, str_256 
+from src.database import Base, str_100, str_256 
 from .shared_types import intpk, created_at, updated_at
 
 if TYPE_CHECKING:

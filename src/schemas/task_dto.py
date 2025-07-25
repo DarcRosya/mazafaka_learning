@@ -1,10 +1,9 @@
 from pydantic import BaseModel, field_validator
 from typing import Optional, TYPE_CHECKING
 from datetime import datetime
-from models.task import TaskPriority, TaskStatus
 
-if TYPE_CHECKING:
-    from src.schemas.tag_dto import TagRead
+from src.models.task import TaskPriority, TaskStatus
+from src.schemas.tag_dto import TagRead
 
 
 # user_id убрал потому что пользователь не должен передавать свой id при создании задачи
@@ -52,7 +51,7 @@ class TaskRead(TaskBase):
     updated_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True # УЗНАТЬ
 
 
 class TaskWithTagsRead(TaskRead):

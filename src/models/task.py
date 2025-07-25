@@ -2,7 +2,8 @@ from typing import Optional, TYPE_CHECKING
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey, Enum
 from datetime import datetime
-from database import Base, str_100 
+
+from src.database import Base, str_100 
 from .shared_types import intpk, created_at, updated_at
 import enum
 

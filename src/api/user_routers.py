@@ -1,11 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from database import get_async_session
-from queries.user_queries import update_user_query, delete_user_query 
-from schemas.task_dto import TaskRead
-from utils.jwt_access import get_current_user
-from models.user import User
-from schemas.user_dto import UserRead, UserUpdate
+
+from src.database import get_async_session
+from src.queries.user_queries import update_user_query, delete_user_query 
+from src.schemas.task_dto import TaskRead
+from src.schemas.user_dto import UserRead, UserUpdate
+from src.utils.jwt_access import get_current_user
+from src.models.user import User
 
 router = APIRouter(
     prefix="/users",      # это общий префикс

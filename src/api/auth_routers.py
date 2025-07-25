@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends, Form
 from fastapi.security import OAuth2PasswordRequestForm
-from utils.auth_services import login_user, register_user
 from sqlalchemy.ext.asyncio import AsyncSession
-from database import get_async_session
-from schemas.auth_dto import Token, UserLogin
-from schemas.user_dto import UserCreate
+
+from src.utils.auth_services import login_user, register_user
+from src.database import get_async_session
+from src.schemas.auth_dto import Token, UserLogin
+from src.schemas.user_dto import UserCreate
 
 router = APIRouter(
     prefix="/auth",

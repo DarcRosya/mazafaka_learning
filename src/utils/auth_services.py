@@ -1,17 +1,18 @@
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from models.user import User
-from utils.password_hashing import verify_password
-from utils.jwt_access import create_access_token
-from queries.user_queries import get_user_by_username
-from schemas.auth_dto import Token, UserLogin
-from schemas.user_dto import UserCreate
-from queries.user_queries import create_user_query
+
+from src.models.user import User
+from src.utils.password_hashing import verify_password
+from src.utils.jwt_access import create_access_token
+from src.queries.user_queries import select_user_by_username
+from src.schemas.auth_dto import Token, UserLogin
+from src.schemas.user_dto import UserCreate
+from src.queries.user_queries import create_user_query
     
 
 # опционально сделать логику с выдачей токена лишь после потверждения email
 async def register_user(db: AsyncSession, user_in: UserCreate) -> Token:
-    existing_user = await get_user_by_username(db, user_in.username)
+    existing_user = await select_user_by_username(db, user_in.username)
     if existing_user:
         raise HTTPException(status_code=400, detail="Username already taken")
 
@@ -23,7 +24,7 @@ async def register_user(db: AsyncSession, user_in: UserCreate) -> Token:
 
 
 async def login_user(db: AsyncSession, user_in: UserLogin) -> Token:
-    user = await get_user_by_username(db, user_in.username)
+    user = await select_user_by_username(db, user_in.username)
 
     if not user or not verify_password(user_in.password, user.password_hash):
         raise HTTPException(status_code=400, detail="Invalid username or password")

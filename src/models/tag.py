@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey
-from database import Base
+from src.database import Base
 from .shared_types import intpk
 
 if TYPE_CHECKING:
