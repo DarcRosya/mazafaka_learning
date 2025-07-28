@@ -8,6 +8,6 @@
 
 # python-jose[cryptography] ???
 
-
+# pip install pydantic[email]
 # python-multiform
 # fastapi-jwt-auth / 

@@ -8,7 +8,7 @@ from src.utils.password_hashing import hash_password
 from src.models.user import User
 
 
-async def create_user_query(db: AsyncSession, user_in: UserCreate) -> User:
+async def create_user_query(db: AsyncSession, user_in: UserCreate, ) -> User:
     user = User(
         username=user_in.username,
         email=user_in.email,
@@ -65,7 +65,7 @@ async def update_user_query(db: AsyncSession, user_id: int, user_update: UserUpd
         raise HTTPException(status_code=404, detail="Tag not found")  
     # Можно обрабатывать на уровне роутера и возвращать 404
     # Вернуть актуальный объект
-    return await select_user_by_id(db, user_id)
+    return await select_user_by_id(user_id, db)
 
 
 async def delete_user_query(db: AsyncSession, user_id: int) -> None:
@@ -85,4 +85,3 @@ async def delete_user_query(db: AsyncSession, user_id: int) -> None:
     
     if result.rowcount == 0:
         raise HTTPException(status_code=404, detail="Task not found or access denied")
-

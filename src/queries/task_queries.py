@@ -1,5 +1,5 @@
 import logging
-from fastapi import HTTPException
+from fastapi import HTTPException, Depends
 from sqlalchemy import and_, select, update, delete
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -8,6 +8,7 @@ from src.schemas.task_dto import TaskCreate, TaskUpdate
 from src.models.task import Task
 from src.models.tag import Tag
 from src.utils.data_handle import strip_tzinfo
+
 
 async def create_task_query(db: AsyncSession, task_in: TaskCreate, user_id: int) -> Task:
     data = task_in.model_dump()

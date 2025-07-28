@@ -14,6 +14,7 @@ class User(Base):
     username: Mapped[str_100] = mapped_column(unique=True, index=True)
     email: Mapped[str_256] = mapped_column(unique=True, index=True)
     password_hash: Mapped[str_256]
+    is_active: Mapped[bool] = mapped_column(default=True)
     created_at: Mapped[created_at]
     updated_at: Mapped[updated_at]
 

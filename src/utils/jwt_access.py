@@ -2,46 +2,135 @@ from datetime import datetime, timedelta, timezone
 from typing import Annotated
 
 from jose import JWTError, jwt
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, status
+from jwt import InvalidTokenError
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models.user import User
-from src.database import get_async_session
 from src.utils.password_hashing import oauth2_scheme
 from src.config import settings
 
 
-def create_access_token(data: dict):
-    to_encode = data.copy()
-
-    expire = datetime.now(timezone.utc) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    to_encode.update({"exp": expire})
-
-    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
-
-    return encoded_jwt
+TOKEN_TYPE_FIELD = "type"
+ACCESS_TOKEN_TYPE = "access"
+REFRESH_TOKEN_TYPE = "refresh"
 
 
-async def get_current_user(
-    token: Annotated[str, Depends(oauth2_scheme)],
-    db: AsyncSession = Depends(get_async_session)
-) -> User:
+def decode_jwt(
+    token: str | bytes,
+    public_key: str = settings.SECRET_KEY,
+    algorithm: str = settings.ALGORITHM,
+) -> dict:
+    decoded = jwt.decode(
+        token,
+        public_key,
+        algorithms=[algorithm],
+    )
+    return decoded
+
+
+def encode_jwt(
+    payload: dict,
+    private_key: str = settings.SECRET_KEY,
+    algorithm: str = settings.ALGORITHM,
+    expire_minutes: int = settings.ACCESS_TOKEN_EXPIRE_MINUTES,
+    expire_timedelta: timedelta | None = None,
+) -> str:
+    to_encode = payload.copy()
+    now = datetime.now(timezone.utc)
+
+    if expire_timedelta:
+        expire = now + expire_timedelta
+    else:
+        expire = now + timedelta(minutes=expire_minutes)
+
+    to_encode.update(
+        exp=expire,
+        iat=now,
+        # jti=str(uuid.uuid4()),
+    )
+    return jwt.encode(to_encode, private_key, algorithm)
+
+
+def create_jwt(
+        token_type: str, 
+        token_data: dict,
+        expire_minutes: int = settings.ACCESS_TOKEN_EXPIRE_MINUTES,
+        expire_timedelta: timedelta | None = None, 
+) -> str:
+    jwt_payload = {TOKEN_TYPE_FIELD: token_type}
+    jwt_payload.update(token_data)
+    return encode_jwt(
+        payload=jwt_payload,
+        expire_minutes=expire_minutes,
+        expire_timedelta=expire_timedelta
+    )
+
+
+def create_access_token(user: User) -> str:
+    jwt_payload = {
+        "sub": user.username,
+        "email": user.email
+    }
+    return create_jwt(
+        token_type=ACCESS_TOKEN_TYPE, 
+        token_data=jwt_payload,
+        expire_minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES,
+    )
+
+
+def create_refresh_token(user: User) -> str:
+    jwt_payload = {
+        "sub": user.username,
+    }
+    return create_jwt(
+        token_type=REFRESH_TOKEN_TYPE, 
+        token_data=jwt_payload,
+        expire_timedelta=timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS),
+    )
+
+
+async def get_current_token_payload(
+        token: Annotated[str, Depends(oauth2_scheme)],
+) -> dict:
     try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=settings.ALGORITHM)
+        payload = decode_jwt(
+            token=token,
+        )
+    except InvalidTokenError as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"invalid token error: {e}",
+        )
+    return payload
+
+
+async def validate_token_type(payload: dict, token_type: str) -> None:
+    current_token_type = payload.get(TOKEN_TYPE_FIELD)
+    if current_token_type != token_type:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"Invalid token type {current_token_type!r} expected {token_type!r}"
+        )
+    
+    
+async def get_user_by_token_sub(payload: dict, db: AsyncSession) -> User:
+    try:
         username = payload.get("sub")
         if username is None:
             raise HTTPException(status_code=401, detail="Invalid credentials")
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid credentials")
-    
+
     result = await db.execute(
-        select(User)
-        .options(selectinload(User.tasks))
-        .where(User.username == username)
+        select(User).options(selectinload(User.tasks)).filter(User.username == username)
     )
     user = result.scalar_one_or_none()
     if user is None:
-        raise HTTPException(status_code=401, detail="User not found")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
     return user
+
+
+

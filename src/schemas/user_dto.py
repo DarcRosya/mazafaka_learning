@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from typing import TYPE_CHECKING, Optional
 from datetime import datetime
 
@@ -8,20 +8,20 @@ if TYPE_CHECKING:
 
 class UserUpdate(BaseModel):
     username: Optional[str] = None
-    email: Optional[str] = None
+    email: Optional[EmailStr] = None
     password: Optional[str] = None
 
 
 class UserCreate(BaseModel):
     username: str
-    email: str
+    email: EmailStr
     password: str
 
 
 class UserRead(BaseModel):
     id: int
     username: str
-    email: str
+    email: EmailStr
     created_at: datetime
     updated_at: datetime
 

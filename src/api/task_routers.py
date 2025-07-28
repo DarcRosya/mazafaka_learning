@@ -3,12 +3,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database import get_async_session
 from src.models.user import User
-from src.models.task import Task
-from src.schemas.task_dto import TaskCreate, TaskRead, TaskUpdate, TaskWithTagsRead
 from src.schemas.tag_dto import TagBase
-from src.utils.jwt_access import get_current_user
+from src.schemas.task_dto import (
+    TaskCreate, 
+    TaskRead, 
+    TaskUpdate, 
+    TaskWithTagsRead
+)
+from src.utils.auth_services import get_current_user
 from src.utils.task_servives import get_task_and_tag_or_404
-
 from src.queries.task_queries import (
     delete_task_query,
     select_tasks_by_user_id,
@@ -30,8 +33,8 @@ router = APIRouter(
     response_description="List of tasks"
 )
 async def get_tasks(
-    db: AsyncSession = Depends(get_async_session),
     current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_async_session),
 ):
     return await select_tasks_by_user_id(db=db, user_id=current_user.id)
 
@@ -45,8 +48,8 @@ async def get_tasks(
 )
 async def create_task(
     task_in: TaskCreate,
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_async_session),
-    current_user: User = Depends(get_current_user)
 ):
     return await create_task_query(db=db, task_in=task_in, user_id=current_user.id)    
 
@@ -59,8 +62,8 @@ async def create_task(
 )
 async def get_tasks_by_tag(
     tag_name: TagBase = None,
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_async_session),
-    current_user: User = Depends(get_current_user)
 ):
     return await select_tasks_by_tag(db=db, tag_name=tag_name, user_id=current_user.id)
 
@@ -78,7 +81,7 @@ async def add_tag_to_task(
     db: AsyncSession = Depends(get_async_session),
     current_user: User = Depends(get_current_user)
 ):
-    task, tag = await get_task_and_tag_or_404(db, task_id, tag_id, current_user.id)
+    task, tag = await get_task_and_tag_or_404(db=db, task_id=task_id, tag_id=tag_id, user_id=current_user.id)
 
     if tag not in task.tags:
         task.tags.append(tag)
@@ -105,7 +108,7 @@ async def remove_tag_from_task(
     db: AsyncSession = Depends(get_async_session),
     current_user: User = Depends(get_current_user)
 ):
-    task, tag = await get_task_and_tag_or_404(db, task_id, tag_id, current_user.id)
+    task, tag = await get_task_and_tag_or_404(db=db, task_id=task_id, tag_id=tag_id, user_id=current_user.id)
 
     if tag not in task.tags:
         raise HTTPException(
@@ -130,11 +133,11 @@ async def remove_tag_from_task(
 async def update_task(
     task_id: int,
     task_in: TaskUpdate,
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_async_session),
-    current_user: User = Depends(get_current_user)
 ):
     updated_task = await update_task_query(
-        db=db, task_id=task_id, user_id=current_user.id, task_update=task_in
+        task_id=task_id, user_id=current_user.id, task_update=task_in
     )
     return TaskRead.model_validate(updated_task, from_attributes=True)
 
@@ -150,7 +153,7 @@ async def update_task(
 )
 async def delete_task(
     task_id: int,
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_async_session),
-    current_user: User = Depends(get_current_user)
 ):
     await delete_task_query(db=db, task_id=task_id, user_id=current_user.id)

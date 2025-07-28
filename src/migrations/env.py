@@ -1,7 +1,7 @@
 import sys
 import os
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'src')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 from logging.config import fileConfig
 
@@ -10,12 +10,14 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from models import User, Task, Tag #noqa
-from database import Base
-from config import settings
+from src.models import User, Task, Tag #noqa
+from src.database import Base
+from src.config import settings
 
 config = context.config
 
+
+# alembic upgrade head
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
