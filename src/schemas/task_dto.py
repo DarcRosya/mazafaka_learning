@@ -1,5 +1,5 @@
-from pydantic import BaseModel, field_validator
-from typing import Optional, TYPE_CHECKING
+from pydantic import BaseModel
+from typing import Optional
 from datetime import datetime
 
 from src.models.task import TaskPriority, TaskStatus
@@ -16,13 +16,6 @@ class TaskBase(BaseModel):
     priority: TaskPriority
     deadline: Optional[datetime]
     completed_at: Optional[datetime]
-    
-    @field_validator("deadline", "completed_at", mode="before")
-    @classmethod
-    def remove_tzinfo(cls, v):
-        if isinstance(v, datetime) and v.tzinfo is not None:
-            return v.replace(tzinfo=None)
-        return v
 
 
 class TaskUpdate(BaseModel):
@@ -32,13 +25,6 @@ class TaskUpdate(BaseModel):
     priority: Optional[TaskPriority] = None
     deadline: Optional[datetime] = None
     completed_at: Optional[datetime] = None
-
-    @field_validator("deadline", "completed_at", mode="before")
-    @classmethod
-    def remove_tzinfo(cls, v):
-        if isinstance(v, datetime) and v.tzinfo is not None:
-            return v.replace(tzinfo=None)
-        return v
 
 
 class TaskCreate(TaskBase):
@@ -51,8 +37,8 @@ class TaskRead(TaskBase):
     updated_at: datetime
 
     class Config:
-        from_attributes = True # УЗНАТЬ
+        from_attributes = True
 
 
-class TaskWithTagsRead(TaskRead):
+class TaskWithTagsRead(TaskBase):
     tags: list["TagRead"]

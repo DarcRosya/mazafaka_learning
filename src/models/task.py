@@ -1,10 +1,9 @@
 from typing import Optional, TYPE_CHECKING
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey, Enum
-from datetime import datetime
 
-from src.database import Base, str_100 
-from .shared_types import intpk, created_at, updated_at
+from src.config.database import Base, str_100 
+from .shared_types import intpk, created_at, updated_at, correct_datetime
 import enum
 
 if TYPE_CHECKING:
@@ -33,10 +32,10 @@ class Task(Base):
     description: Mapped[Optional[str]] = mapped_column(nullable=True)
     status: Mapped[TaskStatus] = mapped_column(Enum(TaskStatus), default=TaskStatus.PENDING)
     priority: Mapped[TaskPriority] = mapped_column(Enum(TaskPriority), default=TaskPriority.MEDIUM)
-    deadline: Mapped[Optional[datetime]] = mapped_column(nullable=True)
-    completed_at: Mapped[Optional[datetime]] = mapped_column(nullable=True)
+    deadline: Mapped[correct_datetime]
+    completed_at: Mapped[correct_datetime]
     created_at: Mapped[created_at]
-    updated_at: Mapped[updated_at]
+    updated_at: Mapped[updated_at] 
 
     user: Mapped["User"] = relationship(
         back_populates="tasks",

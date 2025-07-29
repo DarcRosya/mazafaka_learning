@@ -25,6 +25,9 @@ class UserRead(BaseModel):
     created_at: datetime
     updated_at: datetime
 
+    class Config:
+        from_attributes = True
+
 
 class UserRelationshipTasks(UserRead):
     tasks: list["TaskRead"]

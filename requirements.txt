@@ -11,3 +11,4 @@
 # pip install pydantic[email]
 # python-multiform
 # fastapi-jwt-auth / 
+fastapi-mail-1.5.0

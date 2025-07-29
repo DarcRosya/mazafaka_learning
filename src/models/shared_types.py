@@ -1,11 +1,21 @@
-from typing import Annotated
-from datetime import datetime
-from sqlalchemy import text
+from typing import Annotated, Optional
+from datetime import datetime, timezone
+from sqlalchemy import TIMESTAMP, DateTime, text
 from sqlalchemy.orm import mapped_column
 
 intpk = Annotated[int, mapped_column(primary_key=True)]
-created_at = Annotated[datetime, mapped_column(server_default=text("TIMEZONE('utc', now())"))]
-updated_at = Annotated[datetime, mapped_column(
+created_at = Annotated[datetime, mapped_column(
+    DateTime(timezone=True),
     server_default=text("TIMEZONE('utc', now())"),
-    onupdate=datetime.utcnow,
+    nullable=False
+)]
+updated_at = Annotated[datetime, mapped_column(
+    DateTime(timezone=True), 
+    server_default=text("TIMEZONE('utc', now())"),
+    onupdate=datetime.now(timezone.utc),
+    nullable=False
+)]
+correct_datetime = Annotated[Optional[datetime], mapped_column(
+    TIMESTAMP(timezone=True), 
+    nullable=True
 )]

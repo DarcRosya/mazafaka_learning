@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.database import get_async_session
+from src.config.database import get_async_session
 from src.models.user import User
 from src.schemas.tag_dto import TagRead, TagUpdate
 from src.utils.auth_services import get_current_user

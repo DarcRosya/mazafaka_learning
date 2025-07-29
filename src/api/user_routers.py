@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, status
 from fastapi.security import HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.database import get_async_session
+from src.config.database import get_async_session
 from src.queries.user_queries import (
     update_user_query, 
     delete_user_query 

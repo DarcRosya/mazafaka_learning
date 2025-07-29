@@ -1,4 +1,4 @@
-from src.database import Base, str_100, str_256
+from src.config.database import Base, str_100, str_256
 from .user import User
 from .task import Task
 from .tag import Tag

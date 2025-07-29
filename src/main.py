@@ -13,12 +13,13 @@ if __name__ == "__main__":
 # uvicorn src.main:app --reload
 
 
-# при нуле таксков нужно обработать получение в обоих категориях
-# УЗНАТЬ TASK_DTO
-#  rom __future__ import annotations так же когда работаешь с relationship.
+#  from __future__ import annotations так же когда работаешь с relationship.
 # опционально сделать логику с выдачей токена лишь после потверждения email
-# сделать в юзере систему корректнее с created_at / updated_at
 
 # GIGACHAD
 # SIGMA.MALE@nobitches.com
 # SKIBIDIBOSS
+
+
+# bighorse
+# tiny

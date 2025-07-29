@@ -7,23 +7,28 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.schemas.task_dto import TaskCreate, TaskUpdate
 from src.models.task import Task
 from src.models.tag import Tag
-from src.utils.data_handle import strip_tzinfo
+from src.utils.data_handle import make_aware
 
 
 async def create_task_query(db: AsyncSession, task_in: TaskCreate, user_id: int) -> Task:
     data = task_in.model_dump()
     if 'deadline' in data:
-        data['deadline'] = strip_tzinfo(data['deadline'])
+        data['deadline'] = make_aware(data['deadline'])
 
     if 'completed_at' in data:
-        data['completed_at'] = strip_tzinfo(data['completed_at'])
+        data['completed_at'] = make_aware(data['completed_at'])
 
     task = Task(**data, user_id=user_id)
     try:
         db.add(task)
         await db.commit()
-        await db.refresh(task)
-        return task
+        result = await db.execute(
+            select(Task)
+            .options(selectinload(Task.tags))
+            .filter(Task.id == task.id)
+        )
+        task_with_tags = result.scalar_one()
+        return task_with_tags
     except Exception as e:
         await db.rollback()
         logging.error(f"Update user error: {e}")
@@ -62,10 +67,9 @@ async def select_task_with_selection_relationship(db: AsyncSession, task_id: int
 async def update_task_query(db: AsyncSession, task_id: int, user_id: int, task_update: TaskUpdate) -> Task:
     data = task_update.model_dump(exclude_unset=True)  # берем только поля, которые пришли
     if 'deadline' in data:
-        data['deadline'] = strip_tzinfo(data['deadline'])
-
+        data['deadline'] = make_aware(data['deadline'])
     if 'completed_at' in data:
-        data['completed_at'] = strip_tzinfo(data['completed_at'])
+        data['completed_at'] = make_aware(data['completed_at'])
 
     query = (
         update(Task)

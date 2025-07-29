@@ -15,5 +15,8 @@ class TagUpdate(TagBase):
 class TagRead(TagBase):
     id: int
 
+    class Config:
+        from_attributes = True
+
 # class TagsWithTaskRead(TagRead):
 #     tasks: list["TaskRead"]

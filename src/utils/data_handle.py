@@ -1,9 +1,8 @@
 from datetime import datetime, timezone
 
-
-def strip_tzinfo(dt: datetime | None) -> datetime | None:
+def make_aware(dt: datetime | None) -> datetime | None:
     if dt is None:
         return None
-    if dt.tzinfo is not None:
-        return dt.astimezone(timezone.utc).replace(tzinfo=None)
-    return dt
+    if dt.tzinfo is None:
+        return dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone.utc)

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.database import get_async_session
+from src.config.database import get_async_session
 from src.models.user import User
 from src.schemas.tag_dto import TagBase
 from src.schemas.task_dto import (
@@ -55,7 +55,7 @@ async def create_task(
 
 
 @router.get(
-    "",
+    "/by-tag",
     response_model=list[TaskRead],
     summary="Get all tasks of current user by tag",
     response_description="List of tasks"

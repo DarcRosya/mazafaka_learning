@@ -1,5 +1,6 @@
 import logging
 from fastapi import HTTPException
+from pydantic import EmailStr
 from sqlalchemy import select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -42,6 +43,16 @@ async def select_user_by_username(db: AsyncSession, username: str) -> User | Non
     return result.scalar_one_or_none()
 
 
+async def select_user_by_email(db: AsyncSession, email: EmailStr) -> User | None:
+    query = (
+        select(User)
+        .filter(User.email == email)
+    )
+    result = await db.execute(query)
+    return result.scalar_one_or_none()
+
+
+
 async def update_user_query(db: AsyncSession, user_id: int, user_update: UserUpdate) -> User:
     update_data = user_update.model_dump(exclude_unset=True)
     if "password" in update_data:
@@ -65,7 +76,7 @@ async def update_user_query(db: AsyncSession, user_id: int, user_update: UserUpd
         raise HTTPException(status_code=404, detail="Tag not found")  
     # Можно обрабатывать на уровне роутера и возвращать 404
     # Вернуть актуальный объект
-    return await select_user_by_id(user_id, db)
+    return await select_user_by_id(db=db, user_id=user_id)
 
 
 async def delete_user_query(db: AsyncSession, user_id: int) -> None:

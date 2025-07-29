@@ -1,7 +1,8 @@
-from fastapi import Depends, Form, HTTPException, status
+from fastapi import BackgroundTasks, Depends, Form, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.database import get_async_session
+from src.config.database import get_async_session
+from src.config.email import send_verification_email
 from src.models.user import User
 from src.schemas.auth_dto import TokenInfo
 from src.schemas.user_dto import UserCreate
@@ -10,6 +11,7 @@ from src.utils.jwt_access import (
     ACCESS_TOKEN_TYPE,
     REFRESH_TOKEN_TYPE,
     create_access_token,
+    create_email_token,
     create_refresh_token,
     get_current_token_payload,
     get_user_by_token_sub,
@@ -18,26 +20,32 @@ from src.utils.jwt_access import (
 from src.queries.user_queries import (
     create_user_query, 
     select_user_by_username,
+    select_user_by_email,
 )
     
 
-async def register_user(db: AsyncSession, user_in: UserCreate) -> TokenInfo:
+async def register_user(db: AsyncSession, user_in: UserCreate, background_tasks: BackgroundTasks) -> dict:
     existing_user = await select_user_by_username(db=db, username=user_in.username)
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Username already taken",
         )
+    
+    existing_email = await select_user_by_email(db=db, email=user_in.email)
+    if existing_email:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email already registered",
+        )
 
     user = await create_user_query(db=db, user_in=user_in)
 
-    access_token = create_access_token(user)
-    refresh_token = create_refresh_token(user)
+    token = create_email_token(user)
 
-    return TokenInfo(
-        access_token=access_token,
-        refresh_token=refresh_token
-    )
+    background_tasks.add_task(send_verification_email, user.email, token)
+
+    return {"msg": "Registration successful. Please check your email to verify your account."}
 
 
 async def login_user(user: User) -> TokenInfo:

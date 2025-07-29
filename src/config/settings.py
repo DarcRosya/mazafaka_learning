@@ -11,7 +11,14 @@ class Settings(BaseSettings):
     SECRET_KEY: str 
     ALGORITHM: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
+    EMAIL_TOKEN_EXPIRE_MINUTES: int
     REFRESH_TOKEN_EXPIRE_DAYS: int
+
+    MAIL_USERNAME: str
+    MAIL_PASSWORD: str
+    MAIL_FROM: str
+    MAIL_PORT: int = 465
+    MAIL_SERVER: str
 
     # Указываем откуда загружать .env
     model_config = SettingsConfigDict(

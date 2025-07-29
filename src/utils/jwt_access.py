@@ -10,12 +10,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models.user import User
 from src.utils.password_hashing import oauth2_scheme
-from src.config import settings
+from src.config.settings import settings
 
 
 TOKEN_TYPE_FIELD = "type"
 ACCESS_TOKEN_TYPE = "access"
 REFRESH_TOKEN_TYPE = "refresh"
+EMAIL_TOKEN_TYPE = "email"
 
 
 def decode_jwt(
@@ -43,8 +44,10 @@ def encode_jwt(
 
     if expire_timedelta:
         expire = now + expire_timedelta
-    else:
+    elif expire_minutes:
         expire = now + timedelta(minutes=expire_minutes)
+    else:
+        expire = now + timedelta(minutes=15)
 
     to_encode.update(
         exp=expire,
@@ -89,6 +92,16 @@ def create_refresh_token(user: User) -> str:
         token_type=REFRESH_TOKEN_TYPE, 
         token_data=jwt_payload,
         expire_timedelta=timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS),
+    )
+
+def create_email_token(user: User) -> str:
+    jwt_payload = {
+        "sub": user.email
+    }
+    return create_jwt(
+        token_type=EMAIL_TOKEN_TYPE,
+        token_data=jwt_payload,
+        expire_minutes=10, 
     )
 
 

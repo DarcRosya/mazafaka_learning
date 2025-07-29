@@ -1,4 +1,4 @@
-from src.config import settings
+from src.config.settings import settings
 from typing import Annotated, AsyncGenerator
 from sqlalchemy import String
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine, AsyncSession
