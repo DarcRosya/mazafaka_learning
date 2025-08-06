@@ -11,15 +11,3 @@ if __name__ == "__main__":
 
 
 # uvicorn src.main:app --reload
-
-
-#  from __future__ import annotations так же когда работаешь с relationship.
-# опционально сделать логику с выдачей токена лишь после потверждения email
-
-# GIGACHAD
-# SIGMA.MALE@nobitches.com
-# SKIBIDIBOSS
-
-
-# bighorse
-# tiny

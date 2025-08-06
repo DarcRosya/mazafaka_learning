@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.params import Query
+from fastapi.security import HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.config.database import get_async_session
 from src.models.user import User
-from src.schemas.tag_dto import TagBase
 from src.schemas.task_dto import (
     TaskCreate, 
     TaskRead, 
@@ -14,15 +15,19 @@ from src.utils.auth_services import get_current_user
 from src.utils.task_servives import get_task_and_tag_or_404
 from src.queries.task_queries import (
     delete_task_query,
+    select_task_with_selection_relationship,
     select_tasks_by_user_id,
     create_task_query,
     update_task_query,
     select_tasks_by_tag,
 )
 
+http_bearer = HTTPBearer(auto_error=False)
+
 router = APIRouter(
     prefix="/tasks",
-    tags=["Tasks"]
+    tags=["tasks"],
+    dependencies=[Depends(http_bearer)],
 )
 
 
@@ -55,13 +60,13 @@ async def create_task(
 
 
 @router.get(
-    "/by-tag",
+    "/by_tag",
     response_model=list[TaskRead],
     summary="Get all tasks of current user by tag",
     response_description="List of tasks"
 )
 async def get_tasks_by_tag(
-    tag_name: TagBase = None,
+    tag_name: str = Query(..., alias="tag_name"),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_async_session),
 ):
@@ -87,8 +92,9 @@ async def add_tag_to_task(
         task.tags.append(tag)
         await db.commit()
         await db.refresh(task)
+        task = await select_task_with_selection_relationship(db, task_id=task_id, user_id=current_user.id)
 
-    return task
+    return TaskWithTagsRead.model_validate(task, from_attributes=True)
 
 
 @router.delete(

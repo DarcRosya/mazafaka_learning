@@ -26,6 +26,3 @@ class User(Base):
     tags: Mapped[list["Tag"]] = relationship(
         back_populates="user",
     )
-
-    def __repr__(self) -> str:
-        return f"<User(id={self.id}, username='{self.username}')>"

@@ -6,6 +6,9 @@ if TYPE_CHECKING:
     from src.schemas.task_dto import TaskRead
 
 
+    
+
+
 class UserUpdate(BaseModel):
     username: Optional[str] = None
     email: Optional[EmailStr] = None
@@ -28,6 +31,12 @@ class UserRead(BaseModel):
     class Config:
         from_attributes = True
 
+
+class AuthResponse(BaseModel):
+    access_token: str
+    refresh_token: str
+    token_type: str
+    user: UserRead
 
 class UserRelationshipTasks(UserRead):
     tasks: list["TaskRead"]

@@ -18,8 +18,6 @@ from src.schemas.auth_dto import (
 )
 from src.schemas.user_dto import UserCreate
 
-
-
 http_bearer = HTTPBearer(auto_error=False)
 
 router = APIRouter(

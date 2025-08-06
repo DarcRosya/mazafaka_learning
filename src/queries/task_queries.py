@@ -1,5 +1,5 @@
 import logging
-from fastapi import HTTPException, Depends
+from fastapi import HTTPException
 from sqlalchemy import and_, select, update, delete
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -57,8 +57,8 @@ async def select_tasks_by_tag(db: AsyncSession, tag_name: str, user_id: int) -> 
 async def select_task_with_selection_relationship(db: AsyncSession, task_id: int, user_id: int) -> Task | None:
     query = (
         select(Task)
-        .filter(Task.id == task_id, Task.user_id == user_id)
         .options(selectinload(Task.tags))
+        .filter(Task.id == task_id, Task.user_id == user_id)
     )
     result = await db.execute(query)
     return result.scalar_one_or_none()
@@ -75,6 +75,7 @@ async def update_task_query(db: AsyncSession, task_id: int, user_id: int, task_u
         update(Task)
         .filter(and_(Task.id == task_id, Task.user_id == user_id))
         .values(**data)
+        .returning(Task)
     )
 
     try:
@@ -84,12 +85,11 @@ async def update_task_query(db: AsyncSession, task_id: int, user_id: int, task_u
         await db.rollback()
         raise HTTPException(status_code=500, detail="Internal server error")
 
-    if result.rowcount == 0:
+    updated_task = result.scalar_one_or_none()
+    if not updated_task:
         raise HTTPException(status_code=404, detail="Tag not found")
     
-    updated_object = await db.execute(select(Task).where(Task.id == task_id))
-    # Вернуть обновлённый объект
-    return updated_object.scalars().first()
+    return updated_task
 
 
 async def delete_task_query(db: AsyncSession, task_id: int, user_id: int) -> None:

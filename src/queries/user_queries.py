@@ -52,7 +52,6 @@ async def select_user_by_email(db: AsyncSession, email: EmailStr) -> User | None
     return result.scalar_one_or_none()
 
 
-
 async def update_user_query(db: AsyncSession, user_id: int, user_update: UserUpdate) -> User:
     update_data = user_update.model_dump(exclude_unset=True)
     if "password" in update_data:
@@ -62,6 +61,7 @@ async def update_user_query(db: AsyncSession, user_id: int, user_update: UserUpd
         update(User)
         .where(User.id == user_id)
         .values(**update_data)
+        .returning(User)
     )
 
     try:
@@ -72,15 +72,13 @@ async def update_user_query(db: AsyncSession, user_id: int, user_update: UserUpd
         logging.error(f"Update user error: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
-    if result.rowcount == 0:
+    updated_user = result.scalar_one_or_none()
+    if not updated_user:
         raise HTTPException(status_code=404, detail="Tag not found")  
-    # Можно обрабатывать на уровне роутера и возвращать 404
-    # Вернуть актуальный объект
-    return await select_user_by_id(db=db, user_id=user_id)
+    return updated_user
 
 
 async def delete_user_query(db: AsyncSession, user_id: int) -> None:
-    # Проверка прав: только сам или админ (логика роутера) !!!!!
     query = (
         delete(User)
         .where(User.id == user_id)

@@ -24,12 +24,15 @@ def decode_jwt(
     public_key: str = settings.SECRET_KEY,
     algorithm: str = settings.ALGORITHM,
 ) -> dict:
-    decoded = jwt.decode(
-        token,
-        public_key,
-        algorithms=[algorithm],
-    )
-    return decoded
+    try:
+        decoded = jwt.decode(
+            token,
+            public_key,
+            algorithms=[algorithm],
+        )
+        return decoded
+    except JWTError as e:
+        raise HTTPException(status_code=401, detail=f"Invalid token: {str(e)}")
 
 
 def encode_jwt(
@@ -74,8 +77,9 @@ def create_jwt(
 
 def create_access_token(user: User) -> str:
     jwt_payload = {
-        "sub": user.username,
-        "email": user.email
+        "sub": str(user.id),
+        "email": user.email,
+        "username": user.username,
     }
     return create_jwt(
         token_type=ACCESS_TOKEN_TYPE, 
@@ -86,7 +90,7 @@ def create_access_token(user: User) -> str:
 
 def create_refresh_token(user: User) -> str:
     jwt_payload = {
-        "sub": user.username,
+        "sub": str(user.id), 
     }
     return create_jwt(
         token_type=REFRESH_TOKEN_TYPE, 
@@ -131,14 +135,14 @@ async def validate_token_type(payload: dict, token_type: str) -> None:
     
 async def get_user_by_token_sub(payload: dict, db: AsyncSession) -> User:
     try:
-        username = payload.get("sub")
-        if username is None:
+        user_id = int(payload.get("sub"))
+        if user_id is None:
             raise HTTPException(status_code=401, detail="Invalid credentials")
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     result = await db.execute(
-        select(User).options(selectinload(User.tasks)).filter(User.username == username)
+        select(User).options(selectinload(User.tasks)).filter(User.id == user_id)
     )
     user = result.scalar_one_or_none()
     if user is None:

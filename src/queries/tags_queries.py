@@ -4,12 +4,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models.task import Task
 from src.models.tag import Tag
-from src.schemas.tag_dto import TagCreate, TagUpdate
 
 
-async def create_tag_query(db: AsyncSession, tag_in: TagCreate, user_id: int) -> Tag:
-    data = tag_in.model_dump()
-    tag = Tag(**data, user_id=user_id)
+async def create_tag_query(db: AsyncSession, tag_in: str, user_id: int) -> Tag:
+    tag = Tag(name=tag_in, user_id=user_id)
     try:
         db.add(tag)
         await db.commit()
@@ -48,27 +46,26 @@ async def select_tags_on_task(db: AsyncSession, task_id: int, user_id: int) -> l
     return result.scalars().all()
 
 
-async def update_tag_query(db: AsyncSession, tag_id: int, tag_update: TagUpdate, user_id: int) -> Tag:
-    data = tag_update.model_dump(exclude_unset=True)
-
+async def update_tag_query(db: AsyncSession, tag_id: int, updated_name: str, user_id: int) -> Tag:
     query = (
         update(Tag)
-        .filter(and_(Tag.user_id == user_id, Tag.id == tag_id))
-        .values(**data)
+        .where(and_(Tag.user_id == user_id, Tag.id == tag_id))
+        .values(name=updated_name)
+        .returning(Tag)
     )
 
-    try: 
+    try:
         result = await db.execute(query)
         await db.commit()
     except Exception:
         await db.rollback()
         raise HTTPException(status_code=500, detail="Internal server error")
-    
-    if result.rowcount == 0:
+
+    updated_tag = result.scalar_one_or_none()
+    if not updated_tag:
         raise HTTPException(status_code=404, detail="Tag not found")
-    
-    updated_object = await db.execute(select(Tag).where(Tag.id == tag_id))
-    return updated_object.scalars().first()
+
+    return updated_tag 
 
 
 async def delete_tag_query(db: AsyncSession, tag_id: int, user_id: int) -> None:

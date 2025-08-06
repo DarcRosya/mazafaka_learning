@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, status
+from fastapi.security import HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.config.database import get_async_session
@@ -13,10 +14,12 @@ from src.queries.tags_queries import (
     delete_tag_query,
 )
 
+http_bearer = HTTPBearer(auto_error=False)
 
 router = APIRouter(
     prefix="/tags",
     tags=["Tags"],
+    dependencies=[Depends(http_bearer)],
 )
 
 
@@ -76,8 +79,8 @@ async def update_tag(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_async_session),
 ):
-    updated_tag = await update_tag_query(db=db, tag_id=tag_id, tag_update=tag_in, user_id=current_user.id)
-    TagRead.model_validate(updated_tag, from_attributes=True)
+    updated_tag = await update_tag_query(db=db, tag_id=tag_id, updated_name=tag_in.name, user_id=current_user.id)
+    return TagRead.model_validate(updated_tag, from_attributes=True)
 
 
 @router.delete(
