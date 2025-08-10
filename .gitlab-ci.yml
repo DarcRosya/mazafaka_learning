@@ -5,15 +5,13 @@ stages:
 variables:
   DOCKER_IMAGE: darcrosya/tasknest
 
-before_script:
-  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-
 build-image:
   stage: build
   image: docker:latest
   services:
     - docker:dind
   script:
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
     - docker build -t $DOCKER_IMAGE:latest .
     - docker push $DOCKER_IMAGE:latest
   only:
