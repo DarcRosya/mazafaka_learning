@@ -42,10 +42,10 @@ deploy:  # local deploy (on the same machine)
   services:
     - docker:dind
   before_script:
-    - apk add --no-cache py3-pip
-    - pip3 install docker-compose
-  script:
+    - wget https://github.com/docker/compose/releases/download/v2.17.3/docker-compose-linux-x86_64 -O /usr/local/bin/docker-compose
+    - chmod +x /usr/local/bin/docker-compose
     - docker-compose --version
+  script:
     - docker-compose pull api
     - docker-compose up -d api
   only:
