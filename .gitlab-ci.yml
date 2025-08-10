@@ -40,7 +40,7 @@ deploy:  # local deploy (on the same machine)
   stage: deploy
   image: docker/compose:latest
   script:
-    - docker-compose pull api
-    - docker-compose up -d api
+    - docker compose pull api
+    - docker compose up -d api
   only:
     - main
