@@ -6,11 +6,13 @@ uvicorn[standard]==0.35.0
 SQLAlchemy==2.0.41
 asyncpg==0.30.0
 alembic==1.16.4
+psycopg2-binary==2.9.10
 
 # --- Security and authentication ---
-python-jose[cryptography]==3.5.0
 passlib[bcrypt]==1.7.4
 bcrypt==4.0.1
+PyJWT==2.10.1
+cryptography==45.0.6
 
 # --- Email-sevice ---
 fastapi-mail==1.5.0

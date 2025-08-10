@@ -1,9 +1,9 @@
 from datetime import datetime, timedelta, timezone
 from typing import Annotated
 
-from jose import JWTError, jwt
+import jwt
+from jwt import InvalidTokenError, PyJWTError
 from fastapi import Depends, HTTPException, status
-from jwt import InvalidTokenError
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -25,13 +25,12 @@ def decode_jwt(
     algorithm: str = settings.ALGORITHM,
 ) -> dict:
     try:
-        decoded = jwt.decode(
+        return jwt.decode(
             token,
             public_key,
             algorithms=[algorithm],
         )
-        return decoded
-    except JWTError as e:
+    except (InvalidTokenError, PyJWTError) as e:
         raise HTTPException(status_code=401, detail=f"Invalid token: {str(e)}")
 
 
@@ -57,7 +56,7 @@ def encode_jwt(
         iat=now,
         # jti=str(uuid.uuid4()),
     )
-    return jwt.encode(to_encode, private_key, algorithm)
+    return jwt.encode(to_encode, private_key, algorithm=algorithm)
 
 
 def create_jwt(
@@ -138,7 +137,7 @@ async def get_user_by_token_sub(payload: dict, db: AsyncSession) -> User:
         user_id = int(payload.get("sub"))
         if user_id is None:
             raise HTTPException(status_code=401, detail="Invalid credentials")
-    except JWTError:
+    except (ValueError, PyJWTError):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     result = await db.execute(

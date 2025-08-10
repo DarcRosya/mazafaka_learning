@@ -1,4 +1,5 @@
 from fastapi import BackgroundTasks, Depends, Form, HTTPException, status
+from psycopg2 import ProgrammingError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.config.database import get_async_session
@@ -22,7 +23,7 @@ from src.queries.user_queries import (
     select_user_by_username,
     select_user_by_email,
 )
-    
+
 
 async def register_user(db: AsyncSession, user_in: UserCreate, background_tasks: BackgroundTasks) -> dict:
     existing_user = await select_user_by_username(db=db, username=user_in.username)
@@ -63,7 +64,10 @@ async def validate_user(
     password: str = Form(...),
     db: AsyncSession = Depends(get_async_session),
 ) -> User:
-    user = await select_user_by_username(db=db, username=username)
+    try:
+        user = await select_user_by_username(db, username)
+    except ProgrammingError:
+        raise HTTPException(status_code=500, detail="Database schema is not initialized")
 
     if not user or not verify_password(password, user.password_hash):
         raise HTTPException(
