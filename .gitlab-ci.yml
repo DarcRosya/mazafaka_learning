@@ -1,0 +1,54 @@
+stages:
+  - build
+  - deploy
+
+variables:
+  DOCKER_IMAGE: darcrosya/tasknest
+
+build-image:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+    - docker build -t $DOCKER_IMAGE:latest .
+    - docker push $DOCKER_IMAGE:latest
+  only:
+    - main
+
+
+# deploy:
+#   stage: deploy
+#   image: alpine:latest
+#   before_script:
+#     - apk add --no-cache openssh
+#     - mkdir -p ~/.ssh
+#     - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+#     - chmod 600 ~/.ssh/id_ed25519
+#   script:
+#     - ssh -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_SERVER "
+#         cd /path/to/project &&
+#         docker-compose pull api &&
+#         docker-compose up -d api
+#       "
+#   only:
+#     - main
+
+
+deploy:  # local deploy (on the same machine)
+  stage: deploy
+  image: docker/compose:latest
+  services:
+    - docker:dind
+  before_script:
+    - apk add --no-cache bash
+    - wget https://github.com/docker/compose/releases/download/v2.17.3/docker-compose-linux-x86_64 -O /usr/local/bin/docker-compose
+    - chmod +x /usr/local/bin/docker-compose
+    # Вход в Docker Hub (используй переменные окружения GitLab для безопасности)
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  script:
+    - docker-compose pull api
+    - docker-compose up -d api
+  only:
+    - main

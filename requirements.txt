@@ -1,0 +1,26 @@
+# --- FastAPI and server ---
+fastapi==0.116.1
+uvicorn[standard]==0.35.0
+
+# --- BD and migrations ---
+SQLAlchemy==2.0.41
+asyncpg==0.30.0
+alembic==1.16.4
+psycopg2-binary==2.9.10
+
+# --- Security and authentication ---
+passlib[bcrypt]==1.7.4
+bcrypt==4.0.1
+PyJWT==2.10.1
+cryptography==45.0.6
+
+# --- Email-sevice ---
+fastapi-mail==1.5.0
+email-validator==2.2.0
+
+# --- Validation ---
+pydantic==2.11.7
+pydantic-settings==2.10.1
+
+# --- multipart-forms ---
+python-multipart==0.0.20
