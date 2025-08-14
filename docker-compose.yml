@@ -4,22 +4,15 @@ services:
     ports:
       - "8000:8000" # left port on your machine / right port in container
     container_name: fastapi_projection
-    env_file:
-      - .env
-    volumes:
-      - .:/app
     depends_on:
       db:
         condition: service_healthy
-    networks:
-      - backend
+    restart: always
 
   db:
     image: postgres:16
     container_name: fastapi_projection-db
     restart: always
-    env_file:
-      - .env
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASS}
@@ -33,11 +26,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    networks:
-      - backend
 
 volumes:
   postgres_data:
-
-networks:
-  backend:
