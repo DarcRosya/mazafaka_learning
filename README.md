@@ -10,10 +10,10 @@
 <em></em>
 
 <!-- BADGES -->
-<img src="https://img.shields.io/github/license/DarcRosya/mazafaka_learning.git?style=flat-square&logo=opensourceinitiative&logoColor=white&color=FF4B4B" alt="license">
-<img src="https://img.shields.io/github/last-commit/DarcRosya/mazafaka_learning.git?style=flat-square&logo=git&logoColor=white&color=FF4B4B" alt="last-commit">
-<img src="https://img.shields.io/github/languages/top/DarcRosya/mazafaka_learning.git?style=flat-square&color=FF4B4B" alt="repo-top-language">
-<img src="https://img.shields.io/github/languages/count/DarcRosya/mazafaka_learning.git?style=flat-square&color=FF4B4B" alt="repo-language-count">
+<img src="https://img.shields.io/github/license/DarcRosya/mazafaka_learning?style=flat-square&logo=opensourceinitiative&logoColor=white&color=FF4B4B" alt="license">
+<img src="https://img.shields.io/github/last-commit/DarcRosya/mazafaka_learning?style=flat-square&logo=git&logoColor=white&color=FF4B4B" alt="last-commit">
+<img src="https://img.shields.io/github/languages/top/DarcRosya/mazafaka_learning?style=flat-square&color=FF4B4B" alt="repo-top-language">
+<img src="https://img.shields.io/github/languages/count/DarcRosya/mazafaka_learning?style=flat-square&color=FF4B4B" alt="repo-language-count">
 
 <em>Built with the tools and technologies:</em>
 
